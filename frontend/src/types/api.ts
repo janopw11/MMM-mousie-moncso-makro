@@ -122,6 +122,12 @@ export interface CreateProductRequest {
   fatG: number;
 }
 
+export interface UpdateSavedMealRequest {
+  name: string;
+  type: MealType;
+  items: MealItemRequest[];
+}
+
 export interface SavedMealDto {
   id: number;
   name: string;

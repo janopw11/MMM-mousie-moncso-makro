@@ -4,6 +4,9 @@ import com.mmm.makros.dto.MacroTotals;
 import com.mmm.makros.dto.MealItemDto;
 import com.mmm.makros.dto.MealItemRequest;
 import com.mmm.makros.dto.SavedMealDto;
+import com.mmm.makros.dto.UpdateSavedMealRequest;
+import com.mmm.makros.exception.ConflictException;
+import com.mmm.makros.exception.NotFoundException;
 import com.mmm.makros.entity.MealItemType;
 import com.mmm.makros.entity.MealType;
 import com.mmm.makros.entity.SavedMeal;
@@ -35,18 +38,23 @@ public class SavedMealService {
 
     @Transactional(readOnly = true)
     public List<SavedMealDto> search(String query) {
+        return search(query, SEARCH_LIMIT);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SavedMealDto> search(String query, int limit) {
         String q = query == null ? "" : query.trim();
         List<Long> ids;
         if (q.isEmpty()) {
-            ids = savedMealRepository.findAllByOrderByNameAsc(PageRequest.of(0, SEARCH_LIMIT))
+            ids = savedMealRepository.findAllByOrderByNameAsc(PageRequest.of(0, limit))
                     .stream().map(SavedMeal::getId).toList();
         } else if (fullTextEnabled) {
             String tsQuery = toPrefixTsQuery(q);
             ids = tsQuery.isEmpty()
                     ? List.of()
-                    : savedMealRepository.fullTextSearchIds(tsQuery, q, SEARCH_LIMIT);
+                    : savedMealRepository.fullTextSearchIds(tsQuery, q, limit);
         } else {
-            ids = savedMealRepository.findIdsByNameContaining(q, PageRequest.of(0, SEARCH_LIMIT));
+            ids = savedMealRepository.findIdsByNameContaining(q, PageRequest.of(0, limit));
         }
         if (ids.isEmpty()) {
             return List.of();
@@ -72,6 +80,36 @@ public class SavedMealService {
                     .build());
         }
         savedMealRepository.save(saved);
+    }
+
+    public SavedMealDto update(Long id, UpdateSavedMealRequest request) {
+        SavedMeal meal = savedMealRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Saved meal " + id + " not found"));
+        String name = request.name().trim();
+        if (savedMealRepository.existsByNameIgnoreCaseAndIdNot(name, id)) {
+            throw new ConflictException("Meal '" + name + "' already exists");
+        }
+        meal.setName(name);
+        meal.setType(request.type());
+        meal.getItems().clear();
+        for (MealItemRequest r : request.items()) {
+            meal.addItem(SavedMealItem.builder()
+                    .itemType(r.itemType())
+                    .name(r.name().trim())
+                    .grams(r.grams())
+                    .proteinG(nvl(r.proteinG()))
+                    .carbsG(nvl(r.carbsG()))
+                    .fatG(nvl(r.fatG()))
+                    .build());
+        }
+        return toDto(savedMealRepository.save(meal));
+    }
+
+    public void delete(Long id) {
+        if (!savedMealRepository.existsById(id)) {
+            throw new NotFoundException("Saved meal " + id + " not found");
+        }
+        savedMealRepository.deleteById(id);
     }
 
     private static String toPrefixTsQuery(String q) {

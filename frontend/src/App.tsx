@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { WeekPage } from './pages/WeekPage';
 import { DayPage } from './pages/DayPage';
+import { MealsPage } from './pages/MealsPage';
 import { SummaryPage } from './pages/SummaryPage';
 
 export function App() {
@@ -11,6 +12,7 @@ export function App() {
         <Route index element={<Navigate to="/week" replace />} />
         <Route path="week" element={<WeekPage />} />
         <Route path="day/:date" element={<DayPage />} />
+        <Route path="meals" element={<MealsPage />} />
         <Route path="summary" element={<SummaryPage />} />
         <Route path="*" element={<Navigate to="/week" replace />} />
       </Route>

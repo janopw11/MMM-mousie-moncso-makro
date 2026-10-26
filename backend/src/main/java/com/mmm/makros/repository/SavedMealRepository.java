@@ -12,6 +12,8 @@ public interface SavedMealRepository extends JpaRepository<SavedMeal, Long> {
 
     boolean existsByNameIgnoreCase(String name);
 
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+
     List<SavedMeal> findAllByOrderByNameAsc(Pageable pageable);
 
     @Query("select distinct m from SavedMeal m left join fetch m.items where m.id in :ids order by m.name asc")

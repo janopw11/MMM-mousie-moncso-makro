@@ -10,6 +10,7 @@ import type {
   ProductDto,
   SavedMealDto,
   UpdateDailyGoalRequest,
+  UpdateSavedMealRequest,
   UserDto,
   WeekSummaryDto,
 } from '../types/api';
@@ -59,8 +60,11 @@ export const summaryApi = {
 };
 
 export const savedMealsApi = {
-  search: (query: string) =>
-    http.get<SavedMealDto[]>(`/saved-meals?search=${encodeURIComponent(query)}`),
+  search: (query: string, limit = 20) =>
+    http.get<SavedMealDto[]>(`/saved-meals?search=${encodeURIComponent(query)}&limit=${limit}`),
+  update: (id: number, request: UpdateSavedMealRequest) =>
+    http.put<SavedMealDto>(`/saved-meals/${id}`, request),
+  remove: (id: number) => http.delete<void>(`/saved-meals/${id}`),
 };
 
 export const productsApi = {

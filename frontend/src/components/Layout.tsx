@@ -29,6 +29,9 @@ export function Layout() {
         <NavLink to={`/day/${todayKey}`} className={({ isActive }) => (isActive ? 'active' : undefined)}>
           Today
         </NavLink>
+        <NavLink to="/meals" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          Meals
+        </NavLink>
         <NavLink to="/summary" className={({ isActive }) => (isActive ? 'active' : undefined)}>
           Weekly summary
         </NavLink>

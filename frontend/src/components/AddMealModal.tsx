@@ -43,12 +43,13 @@ function draftItemsFromMeal(meal: Pick<MealDto, 'items'>): DraftItem[] {
 
 interface AddMealModalProps {
   date: string;
-  initialMeal?: MealDto;
+  initialMeal?: Pick<MealDto, 'name' | 'type' | 'items'>;
+  savedMode?: boolean;
   onClose: () => void;
   onSubmit: (request: CreateMealRequest) => Promise<void>;
 }
 
-export function AddMealModal({ date, initialMeal, onClose, onSubmit }: AddMealModalProps) {
+export function AddMealModal({ date, initialMeal, savedMode, onClose, onSubmit }: AddMealModalProps) {
   const isEditing = Boolean(initialMeal);
   const [name, setName] = useState(initialMeal?.name ?? '');
   const [type, setType] = useState<MealType>(initialMeal?.type ?? 'BREAKFAST');
@@ -172,13 +173,17 @@ export function AddMealModal({ date, initialMeal, onClose, onSubmit }: AddMealMo
           <div className="modal-scroll-area">
           <div className="form-row">
             <label htmlFor="meal-name">Meal name</label>
-            <SavedMealAutocomplete
-              value={name}
-              onNameChange={setName}
-              onSelectMeal={selectSavedMeal}
-              placeholder="e.g. Oatmeal with banana"
-              autoFocus
-            />
+            {savedMode ? (
+              <input id="meal-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+            ) : (
+              <SavedMealAutocomplete
+                value={name}
+                onNameChange={setName}
+                onSelectMeal={selectSavedMeal}
+                placeholder="e.g. Oatmeal with banana"
+                autoFocus
+              />
+            )}
           </div>
 
           <div className="form-row">
