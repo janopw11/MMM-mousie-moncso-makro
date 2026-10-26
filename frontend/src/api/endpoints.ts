@@ -1,9 +1,11 @@
 import { http } from './http';
 import type {
+  CreateGoalPresetRequest,
   CreateMealRequest,
   CreateProductRequest,
   DailyGoalDto,
   DaySummaryDto,
+  GoalPresetDto,
   MealDto,
   ProductDto,
   UpdateDailyGoalRequest,
@@ -25,6 +27,14 @@ export const goalsApi = {
     http.get<DailyGoalDto[]>(`/users/${userId}/goals?weekStart=${weekStart}`),
   upsert: (userId: number, date: string, request: UpdateDailyGoalRequest) =>
     http.put<DailyGoalDto>(`/users/${userId}/goals/${date}`, request),
+};
+
+export const goalPresetsApi = {
+  list: (userId: number) => http.get<GoalPresetDto[]>(`/users/${userId}/goal-presets`),
+  create: (userId: number, request: CreateGoalPresetRequest) =>
+    http.post<GoalPresetDto>(`/users/${userId}/goal-presets`, request),
+  remove: (userId: number, presetId: number) =>
+    http.delete<void>(`/users/${userId}/goal-presets/${presetId}`),
 };
 
 export const mealsApi = {

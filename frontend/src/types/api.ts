@@ -94,6 +94,17 @@ export interface UpdateDailyGoalRequest {
   veggiesGoalG?: number;
 }
 
+export interface GoalPresetDto {
+  id: number;
+  name: string;
+  goal: MacroTotals;
+  veggiesGoalG: number;
+}
+
+export interface CreateGoalPresetRequest extends UpdateDailyGoalRequest {
+  name: string;
+}
+
 export interface ProductDto {
   id: number;
   name: string;

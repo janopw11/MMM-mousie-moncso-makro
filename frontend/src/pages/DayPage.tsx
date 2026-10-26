@@ -109,6 +109,7 @@ export function DayPage() {
       {showGoalEditor && summary && (
         <GoalEditor
           date={dateKey}
+          userId={activeUser.id}
           initialGoal={{ date: dateKey, goal: summary.goal, veggiesGoalG: summary.veggiesGoalG }}
           onClose={() => setShowGoalEditor(false)}
           onSubmit={async (proteinG, carbsG, fatG, veggiesGoalG) => {

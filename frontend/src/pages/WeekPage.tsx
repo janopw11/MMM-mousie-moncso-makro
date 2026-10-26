@@ -87,6 +87,7 @@ export function WeekPage() {
       {editingDay && (
         <GoalEditor
           date={editingDay.date}
+          userId={activeUser.id}
           initialGoal={{ date: editingDay.date, goal: editingDay.goal, veggiesGoalG: editingDay.veggiesGoalG }}
           onClose={() => setEditingDay(null)}
           onSubmit={async (proteinG, carbsG, fatG, veggiesGoalG) => {
