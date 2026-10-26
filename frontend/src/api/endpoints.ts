@@ -63,6 +63,7 @@ export const summaryApi = {
 export const savedMealsApi = {
   search: (query: string, limit = 20) =>
     http.get<SavedMealDto[]>(`/saved-meals?search=${encodeURIComponent(query)}&limit=${limit}`),
+  create: (request: UpdateSavedMealRequest) => http.post<SavedMealDto>('/saved-meals', request),
   update: (id: number, request: UpdateSavedMealRequest) =>
     http.put<SavedMealDto>(`/saved-meals/${id}`, request),
   remove: (id: number) => http.delete<void>(`/saved-meals/${id}`),

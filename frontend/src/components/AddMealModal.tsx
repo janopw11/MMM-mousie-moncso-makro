@@ -30,15 +30,23 @@ function emptyItem(itemType: MealItemType): DraftItem {
 }
 
 function draftItemsFromMeal(meal: Pick<MealDto, 'items'>): DraftItem[] {
-  return meal.items.map((item) => ({
-    key: `${item.id}-${Math.random()}`,
-    itemType: item.itemType,
-    name: item.name,
-    grams: String(item.grams),
-    proteinG: String(item.proteinG),
-    carbsG: String(item.carbsG),
-    fatG: String(item.fatG),
-  }));
+  return meal.items.map((item) => {
+    const grams = Number(item.grams);
+    // Derive per-100g values so editing grams rescales macros, same as picking a product.
+    const canScale = item.itemType === 'INGREDIENT' && grams > 0;
+    return {
+      key: `${item.id}-${Math.random()}`,
+      itemType: item.itemType,
+      name: item.name,
+      grams: String(item.grams),
+      proteinG: String(item.proteinG),
+      carbsG: String(item.carbsG),
+      fatG: String(item.fatG),
+      proteinPer100: canScale ? (Number(item.proteinG) / grams) * 100 : undefined,
+      carbsPer100: canScale ? (Number(item.carbsG) / grams) * 100 : undefined,
+      fatPer100: canScale ? (Number(item.fatG) / grams) * 100 : undefined,
+    };
+  });
 }
 
 interface AddMealModalProps {
@@ -171,133 +179,133 @@ export function AddMealModal({ date, initialMeal, savedMode, onClose, onSubmit }
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="modal-scroll-area">
-          <div className="form-row">
-            <label htmlFor="meal-name">Meal name</label>
-            {savedMode ? (
-              <input id="meal-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-            ) : (
-              <SavedMealAutocomplete
-                value={name}
-                onNameChange={setName}
-                onSelectMeal={selectSavedMeal}
-                placeholder="e.g. Oatmeal with banana"
-                autoFocus
-              />
-            )}
-          </div>
-
-          <div className="form-row">
-            <label>Meal type</label>
-            <div className="chip-group">
-              {MEAL_TYPE_ORDER.map((t) => (
-                <button
-                  type="button"
-                  key={t}
-                  className={`chip${type === t ? ' active' : ''}`}
-                  onClick={() => setType(t)}
-                >
-                  {MEAL_TYPE_LABELS[t]}
-                </button>
-              ))}
+            <div className="form-row">
+              <label htmlFor="meal-name">Meal name</label>
+              {savedMode ? (
+                <input id="meal-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+              ) : (
+                <SavedMealAutocomplete
+                  value={name}
+                  onNameChange={setName}
+                  onSelectMeal={selectSavedMeal}
+                  placeholder="e.g. Oatmeal with banana"
+                  autoFocus
+                />
+              )}
             </div>
-          </div>
 
-          <div className="form-row">
-            <label>Ingredients &amp; vegetables</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {items.map((item) => (
-                <div
-                  key={item.key}
-                  className={item.itemType === 'VEGGIE' ? 'ingredient-row veggie-row' : 'ingredient-row'}
-                >
-                  <div className="form-row">
-                    <label>{item.itemType === 'VEGGIE' ? 'Vegetable' : 'Ingredient'}</label>
-                    {item.itemType === 'INGREDIENT' ? (
-                      <ProductAutocomplete
-                        value={item.name}
-                        placeholder="e.g. Rolled oats"
-                        onNameChange={(value) => updateItemName(item.key, value)}
-                        onSelectProduct={(product) => selectProductForItem(item.key, product)}
-                      />
-                    ) : (
-                      <input
-                        value={item.name}
-                        onChange={(e) => updateItem(item.key, { name: e.target.value })}
-                        placeholder="e.g. Carrot"
-                      />
-                    )}
-                  </div>
-                  <div className="form-row">
-                    <label>Grams</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={item.grams}
-                      onChange={(e) => updateGrams(item.key, e.target.value)}
-                      placeholder="85"
-                    />
-                  </div>
-                  {item.itemType === 'INGREDIENT' && (
-                    <>
-                      <div className="form-row">
-                        <label>Protein (g)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={item.proteinG}
-                          onChange={(e) => updateItem(item.key, { proteinG: e.target.value })}
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="form-row">
-                        <label>Carbs (g)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={item.carbsG}
-                          onChange={(e) => updateItem(item.key, { carbsG: e.target.value })}
-                          placeholder="0"
-                        />
-                      </div>
-                      <div className="form-row">
-                        <label>Fat (g)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={item.fatG}
-                          onChange={(e) => updateItem(item.key, { fatG: e.target.value })}
-                          placeholder="0"
-                        />
-                      </div>
-                    </>
-                  )}
+            <div className="form-row">
+              <label>Meal type</label>
+              <div className="chip-group">
+                {MEAL_TYPE_ORDER.map((t) => (
                   <button
                     type="button"
-                    className="btn btn-danger btn-icon"
-                    onClick={() => removeItem(item.key)}
-                    disabled={items.length === 1}
-                    aria-label="Remove row"
-                    title="Remove row"
+                    key={t}
+                    className={`chip${type === t ? ' active' : ''}`}
+                    onClick={() => setType(t)}
                   >
-                    ✕
+                    {MEAL_TYPE_LABELS[t]}
                   </button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-              <button type="button" className="btn btn-secondary" onClick={addIngredient}>
-                + Add ingredient
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={addVeggie}>
-                🥦 Add vegetable
-              </button>
+            <div className="form-row">
+              <label>Ingredients &amp; vegetables</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {items.map((item) => (
+                  <div
+                    key={item.key}
+                    className={item.itemType === 'VEGGIE' ? 'ingredient-row veggie-row' : 'ingredient-row'}
+                  >
+                    <div className="form-row">
+                      <label>{item.itemType === 'VEGGIE' ? 'Vegetable' : 'Ingredient'}</label>
+                      {item.itemType === 'INGREDIENT' ? (
+                        <ProductAutocomplete
+                          value={item.name}
+                          placeholder="e.g. Rolled oats"
+                          onNameChange={(value) => updateItemName(item.key, value)}
+                          onSelectProduct={(product) => selectProductForItem(item.key, product)}
+                        />
+                      ) : (
+                        <input
+                          value={item.name}
+                          onChange={(e) => updateItem(item.key, { name: e.target.value })}
+                          placeholder="e.g. Carrot"
+                        />
+                      )}
+                    </div>
+                    <div className="form-row">
+                      <label>Grams</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={item.grams}
+                        onChange={(e) => updateGrams(item.key, e.target.value)}
+                        placeholder="85"
+                      />
+                    </div>
+                    {item.itemType === 'INGREDIENT' && (
+                      <>
+                        <div className="form-row">
+                          <label>Protein (g)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.proteinG}
+                            onChange={(e) => updateItem(item.key, { proteinG: e.target.value })}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="form-row">
+                          <label>Carbs (g)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.carbsG}
+                            onChange={(e) => updateItem(item.key, { carbsG: e.target.value })}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="form-row">
+                          <label>Fat (g)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.fatG}
+                            onChange={(e) => updateItem(item.key, { fatG: e.target.value })}
+                            placeholder="0"
+                          />
+                        </div>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-icon"
+                      onClick={() => removeItem(item.key)}
+                      disabled={items.length === 1}
+                      aria-label="Remove row"
+                      title="Remove row"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <button type="button" className="btn btn-secondary" onClick={addIngredient}>
+                  + Add ingredient
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={addVeggie}>
+                  🥦 Add vegetable
+                </button>
+              </div>
             </div>
-          </div>
           </div>
 
           <div className="modal-footer">

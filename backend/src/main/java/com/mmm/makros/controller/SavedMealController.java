@@ -25,6 +25,12 @@ public class SavedMealController {
         return savedMealService.search(search, Math.max(1, Math.min(limit, MAX_LIMIT)));
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public SavedMealDto create(@Valid @RequestBody UpdateSavedMealRequest request) {
+        return savedMealService.create(request);
+    }
+
     @PutMapping("/{id}")
     public SavedMealDto update(@PathVariable Long id, @Valid @RequestBody UpdateSavedMealRequest request) {
         return savedMealService.update(id, request);

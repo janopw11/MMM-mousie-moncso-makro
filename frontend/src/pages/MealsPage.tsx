@@ -17,6 +17,7 @@ export function MealsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<SavedMealDto | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -47,13 +48,17 @@ export function MealsPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="card">
+      <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search saved meals…"
           autoComplete="off"
+          style={{ flex: 1 }}
         />
+        <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
+          + Add meal
+        </button>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
@@ -122,6 +127,19 @@ export function MealsPage() {
           onSubmit={async ({ name, type, items }) => {
             await savedMealsApi.update(editing.id, { name, type, items });
             setEditing(null);
+            await load();
+          }}
+        />
+      )}
+
+      {creating && (
+        <AddMealModal
+          savedMode
+          date={toDateKey(new Date())}
+          onClose={() => setCreating(false)}
+          onSubmit={async ({ name, type, items }) => {
+            await savedMealsApi.create({ name, type, items });
+            setCreating(false);
             await load();
           }}
         />

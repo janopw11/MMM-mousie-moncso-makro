@@ -19,7 +19,6 @@ public class MealService {
 
     private final MealRepository mealRepository;
     private final UserService userService;
-    private final SavedMealService savedMealService;
 
     @Transactional(readOnly = true)
     public List<MealDto> getMealsForDate(Long userId, LocalDate date) {
@@ -52,7 +51,6 @@ public class MealService {
             meal.addItem(item);
         }
 
-        savedMealService.saveIfAbsent(userId, request.name(), request.type(), request.items());
         return toDto(mealRepository.save(meal));
     }
 
@@ -80,7 +78,6 @@ public class MealService {
             meal.addItem(item);
         }
 
-        savedMealService.saveIfAbsent(userId, request.name(), request.type(), request.items());
         return toDto(mealRepository.save(meal));
     }
 

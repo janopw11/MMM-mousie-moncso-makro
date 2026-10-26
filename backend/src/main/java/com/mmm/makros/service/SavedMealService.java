@@ -8,7 +8,6 @@ import com.mmm.makros.dto.UpdateSavedMealRequest;
 import com.mmm.makros.exception.ConflictException;
 import com.mmm.makros.exception.NotFoundException;
 import com.mmm.makros.entity.MealItemType;
-import com.mmm.makros.entity.MealType;
 import com.mmm.makros.entity.SavedMeal;
 import com.mmm.makros.entity.SavedMealItem;
 import com.mmm.makros.repository.SavedMealRepository;
@@ -62,14 +61,13 @@ public class SavedMealService {
         return savedMealRepository.findByIdsWithItems(ids).stream().map(this::toDto).toList();
     }
 
-    /** Saves the meal definition for all users unless a meal with the same name already exists. */
-    public void saveIfAbsent(Long userId, String name, MealType type, List<MealItemRequest> items) {
-        String trimmed = name.trim();
-        if (savedMealRepository.existsByNameIgnoreCase(trimmed)) {
-            return;
+    public SavedMealDto create(UpdateSavedMealRequest request) {
+        String name = request.name().trim();
+        if (savedMealRepository.existsByNameIgnoreCase(name)) {
+            throw new ConflictException("Meal '" + name + "' already exists");
         }
-        SavedMeal saved = SavedMeal.builder().name(trimmed).type(type).createdByUserId(userId).build();
-        for (MealItemRequest r : items) {
+        SavedMeal saved = SavedMeal.builder().name(name).type(request.type()).build();
+        for (MealItemRequest r : request.items()) {
             saved.addItem(SavedMealItem.builder()
                     .itemType(r.itemType())
                     .name(r.name().trim())
@@ -79,7 +77,7 @@ public class SavedMealService {
                     .fatG(nvl(r.fatG()))
                     .build());
         }
-        savedMealRepository.save(saved);
+        return toDto(savedMealRepository.save(saved));
     }
 
     public SavedMealDto update(Long id, UpdateSavedMealRequest request) {
