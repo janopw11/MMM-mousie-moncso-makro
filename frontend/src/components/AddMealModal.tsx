@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { MEAL_TYPE_LABELS, MEAL_TYPE_ORDER } from '../utils/constants';
 import { ProductAutocomplete } from './ProductAutocomplete';
-import type { CreateMealRequest, MealDto, MealItemRequest, MealItemType, MealType, ProductDto } from '../types/api';
+import { SavedMealAutocomplete } from './SavedMealAutocomplete';
+import type { CreateMealRequest, MealDto, MealItemRequest, MealItemType, MealType, ProductDto, SavedMealDto } from '../types/api';
 
 interface DraftItem {
   key: string;
@@ -28,7 +29,7 @@ function emptyItem(itemType: MealItemType): DraftItem {
   };
 }
 
-function draftItemsFromMeal(meal: MealDto): DraftItem[] {
+function draftItemsFromMeal(meal: Pick<MealDto, 'items'>): DraftItem[] {
   return meal.items.map((item) => ({
     key: `${item.id}-${Math.random()}`,
     itemType: item.itemType,
@@ -71,6 +72,12 @@ export function AddMealModal({ date, initialMeal, onClose, onSubmit }: AddMealMo
 
   function addVeggie() {
     setItems((prev) => [...prev, emptyItem('VEGGIE')]);
+  }
+
+  function selectSavedMeal(meal: SavedMealDto) {
+    setName(meal.name);
+    setType(meal.type);
+    setItems(draftItemsFromMeal(meal));
   }
 
   function selectProductForItem(key: string, product: ProductDto) {
@@ -165,10 +172,10 @@ export function AddMealModal({ date, initialMeal, onClose, onSubmit }: AddMealMo
           <div className="modal-scroll-area">
           <div className="form-row">
             <label htmlFor="meal-name">Meal name</label>
-            <input
-              id="meal-name"
+            <SavedMealAutocomplete
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onNameChange={setName}
+              onSelectMeal={selectSavedMeal}
               placeholder="e.g. Oatmeal with banana"
               autoFocus
             />

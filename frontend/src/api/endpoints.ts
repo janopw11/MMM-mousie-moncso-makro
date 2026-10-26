@@ -8,6 +8,7 @@ import type {
   GoalPresetDto,
   MealDto,
   ProductDto,
+  SavedMealDto,
   UpdateDailyGoalRequest,
   UserDto,
   WeekSummaryDto,
@@ -55,6 +56,11 @@ export const summaryApi = {
     http.get<DaySummaryDto>(`/users/${userId}/summary/day/${date}`),
   getWeek: (userId: number, weekStart: string) =>
     http.get<WeekSummaryDto>(`/users/${userId}/summary/week?weekStart=${weekStart}`),
+};
+
+export const savedMealsApi = {
+  search: (query: string) =>
+    http.get<SavedMealDto[]>(`/saved-meals?search=${encodeURIComponent(query)}`),
 };
 
 export const productsApi = {

@@ -10,5 +10,7 @@ spring:
   flyway:
     enabled: false
 mmm:
+  search:
+    full-text: false
   cors:
     allowed-origins: http://localhost:5173

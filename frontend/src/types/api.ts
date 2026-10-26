@@ -121,3 +121,12 @@ export interface CreateProductRequest {
   carbsG: number;
   fatG: number;
 }
+
+export interface SavedMealDto {
+  id: number;
+  name: string;
+  type: MealType;
+  items: MealItemDto[];
+  macroTotals: MacroTotals;
+  veggiesG: number;
+}

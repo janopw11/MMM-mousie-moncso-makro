@@ -5,7 +5,9 @@ import com.mmm.makros.dto.CreateProductRequest;
 import com.mmm.makros.dto.CreateUserRequest;
 import com.mmm.makros.dto.MealItemRequest;
 import com.mmm.makros.dto.ProductDto;
+import com.mmm.makros.dto.SavedMealDto;
 import com.mmm.makros.dto.UpdateDailyGoalRequest;
+import com.mmm.makros.service.SavedMealService;
 import com.mmm.makros.dto.UserDto;
 import com.mmm.makros.dto.DaySummaryDto;
 import com.mmm.makros.entity.MealItemType;
@@ -42,6 +44,8 @@ class MakrosApplicationTests {
     private SummaryService summaryService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private SavedMealService savedMealService;
 
     @Test
     void contextLoads() {
@@ -70,6 +74,22 @@ class MakrosApplicationTests {
         assertThat(summary.consumed().calories()).isEqualByComparingTo(BigDecimal.valueOf(311.0));
         assertThat(summary.veggiesConsumedG()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(summary.remaining().proteinG()).isEqualByComparingTo(BigDecimal.valueOf(138));
+    }
+
+    @Test
+    void mealsAreSavedOnceAndSharedAcrossUsers() {
+        UserDto first = userService.createUser(new CreateUserRequest("a-" + System.nanoTime()));
+        UserDto second = userService.createUser(new CreateUserRequest("b-" + System.nanoTime()));
+        String name = "Shared Bowl " + System.nanoTime();
+        List<MealItemRequest> items = List.of(new MealItemRequest(MealItemType.INGREDIENT, "Rice",
+                BigDecimal.valueOf(100), BigDecimal.valueOf(3), BigDecimal.valueOf(28), BigDecimal.ONE));
+
+        mealService.createMeal(first.id(), new CreateMealRequest(LocalDate.now(), name, MealType.LUNCH, items));
+        mealService.createMeal(second.id(), new CreateMealRequest(LocalDate.now(), name.toUpperCase(), MealType.LUNCH, items));
+
+        List<SavedMealDto> found = savedMealService.search("shared bowl");
+        assertThat(found).filteredOn(m -> m.name().equalsIgnoreCase(name)).hasSize(1);
+        assertThat(found.get(0).macroTotals().proteinG()).isEqualByComparingTo(BigDecimal.valueOf(3));
     }
 
     @Test
