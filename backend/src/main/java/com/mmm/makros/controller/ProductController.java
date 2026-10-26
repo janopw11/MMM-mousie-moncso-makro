@@ -15,16 +15,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
+    private static final int MAX_LIMIT = 500;
+
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductDto> search(@RequestParam(required = false) String search) {
-        return productService.search(search);
+    public List<ProductDto> search(@RequestParam(required = false) String search,
+                                    @RequestParam(defaultValue = "20") int limit) {
+        return productService.search(search, Math.max(1, Math.min(limit, MAX_LIMIT)));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductDto create(@Valid @RequestBody CreateProductRequest request) {
         return productService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public ProductDto update(@PathVariable Long id, @Valid @RequestBody CreateProductRequest request) {
+        return productService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        productService.delete(id);
     }
 }

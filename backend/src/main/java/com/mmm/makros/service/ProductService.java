@@ -5,6 +5,7 @@ import com.mmm.makros.dto.MacroTotals;
 import com.mmm.makros.dto.ProductDto;
 import com.mmm.makros.entity.Product;
 import com.mmm.makros.exception.ConflictException;
+import com.mmm.makros.exception.NotFoundException;
 import com.mmm.makros.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -25,10 +26,15 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductDto> search(String query) {
-        Pageable limit = PageRequest.of(0, SEARCH_LIMIT);
+        return search(query, SEARCH_LIMIT);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductDto> search(String query, int limit) {
+        Pageable limitedPage = PageRequest.of(0, limit);
         List<Product> products = (query == null || query.isBlank())
-                ? productRepository.findAllByOrderByNameAsc().stream().limit(SEARCH_LIMIT).toList()
-                : productRepository.findByNameContainingIgnoreCaseOrderByNameAsc(query.trim(), limit);
+                ? productRepository.findAllByOrderByNameAsc().stream().limit(limit).toList()
+                : productRepository.findByNameContainingIgnoreCaseOrderByNameAsc(query.trim(), limitedPage);
         return products.stream().map(this::toDto).toList();
     }
 
@@ -45,6 +51,29 @@ public class ProductService {
                 .custom(true)
                 .build();
         return toDto(productRepository.save(product));
+    }
+
+    public ProductDto update(Long id, CreateProductRequest request) {
+        Product product = findEntity(id);
+        String name = request.name().trim();
+        if (productRepository.existsByNameIgnoreCaseAndIdNot(name, id)) {
+            throw new ConflictException("Product '" + name + "' already exists");
+        }
+        product.setName(name);
+        product.setProteinG(request.proteinG());
+        product.setCarbsG(request.carbsG());
+        product.setFatG(request.fatG());
+        return toDto(productRepository.save(product));
+    }
+
+    public void delete(Long id) {
+        Product product = findEntity(id);
+        productRepository.delete(product);
+    }
+
+    private Product findEntity(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found: " + id));
     }
 
     private ProductDto toDto(Product product) {

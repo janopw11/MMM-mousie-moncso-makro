@@ -7,6 +7,7 @@ import com.mmm.makros.dto.MealItemRequest;
 import com.mmm.makros.dto.ProductDto;
 import com.mmm.makros.dto.SavedMealDto;
 import com.mmm.makros.dto.UpdateDailyGoalRequest;
+import com.mmm.makros.exception.NotFoundException;
 import com.mmm.makros.service.SavedMealService;
 import com.mmm.makros.dto.UserDto;
 import com.mmm.makros.dto.DaySummaryDto;
@@ -108,5 +109,26 @@ class MakrosApplicationTests {
         assertThatThrownBy(() -> productService.create(new CreateProductRequest(
                 uniqueName.toUpperCase(), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)))
                 .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void productUpdateAndDelete() {
+        String originalName = "Test Rice " + System.nanoTime();
+        ProductDto created = productService.create(new CreateProductRequest(
+                originalName, BigDecimal.valueOf(2.7), BigDecimal.valueOf(28), BigDecimal.valueOf(0.3)));
+
+        String updatedName = "Test Brown Rice " + System.nanoTime();
+        ProductDto updated = productService.update(created.id(), new CreateProductRequest(
+                updatedName, BigDecimal.valueOf(2.6), BigDecimal.valueOf(23), BigDecimal.valueOf(0.9)));
+
+        assertThat(updated.id()).isEqualTo(created.id());
+        assertThat(updated.name()).isEqualTo(updatedName);
+        assertThat(updated.proteinG()).isEqualByComparingTo(BigDecimal.valueOf(2.6));
+
+        productService.delete(created.id());
+
+        assertThatThrownBy(() -> productService.update(created.id(), new CreateProductRequest(
+                updatedName, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)))
+                .isInstanceOf(NotFoundException.class);
     }
 }

@@ -32,6 +32,9 @@ export function Layout() {
         <NavLink to="/meals" className={({ isActive }) => (isActive ? 'active' : undefined)}>
           Meals
         </NavLink>
+        <NavLink to="/ingredients" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          Ingredients
+        </NavLink>
         <NavLink to="/summary" className={({ isActive }) => (isActive ? 'active' : undefined)}>
           Weekly summary
         </NavLink>
