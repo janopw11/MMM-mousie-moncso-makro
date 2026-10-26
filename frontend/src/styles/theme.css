@@ -1,0 +1,135 @@
+:root {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  --transition-fast: 150ms ease;
+
+  /* Brand accents (shared across themes) */
+  --brand-orange: #f6a623;
+  --brand-orange-dark: #d98a0e;
+  --brand-brown: #5a3a22;
+
+  --protein-color: #ef6c8e;
+  --carbs-color: #4fb0ce;
+  --fat-color: #f6c343;
+  --veggie-color: #5cb85c;
+}
+
+[data-theme='light'] {
+  --bg-app: #f7f5f2;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #f1eee8;
+  --bg-elevated: #ffffff;
+  --border-color: #e4e0d8;
+  --text-primary: #2b2420;
+  --text-secondary: #6b6258;
+  --text-muted: #9a9185;
+  --accent: var(--brand-orange);
+  --accent-contrast: #2b2420;
+  --accent-hover: var(--brand-orange-dark);
+  --danger: #d9534f;
+  --success: #4caf7d;
+  --overlay: rgba(43, 36, 32, 0.45);
+}
+
+[data-theme='dark'] {
+  --bg-app: #1c1a18;
+  --bg-surface: #27241f;
+  --bg-surface-alt: #322d26;
+  --bg-elevated: #322d26;
+  --border-color: #433c33;
+  --text-primary: #f3ede4;
+  --text-secondary: #c7bdae;
+  --text-muted: #8c8276;
+  --accent: var(--brand-orange);
+  --accent-contrast: #231c13;
+  --accent-hover: #ffb84d;
+  --danger: #e57873;
+  --success: #6fcf9a;
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  min-width: 0;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 700;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}

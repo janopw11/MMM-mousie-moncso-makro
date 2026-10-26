@@ -1,0 +1,290 @@
+/* Progress bars for macros/calories/veggies */
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-surface-alt);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 300ms ease;
+}
+
+.progress-bar-fill.over {
+  background: var(--danger) !important;
+}
+
+.macro-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.macro-stat-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.macro-stat-head strong {
+  color: var(--text-primary);
+}
+
+.macro-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: var(--space-1);
+}
+
+/* Week calendar */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 860px) {
+  .week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .week-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.day-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.day-card.is-today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.day-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.day-card-head .dow {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.day-card-head .dom {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.day-card-calories {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.day-card-calories small {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Meal list */
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.meal-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.meal-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.meal-type-badge {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--bg-surface-alt);
+  color: var(--text-secondary);
+}
+
+.meal-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.meal-item-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.meal-item-row .veggie {
+  color: var(--veggie-color);
+}
+
+.meal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed var(--border-color);
+  padding-top: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Ingredient builder rows in Add Meal form */
+.ingredient-row {
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.ingredient-row.veggie-row {
+  grid-template-columns: 1.6fr 0.8fr auto;
+}
+
+@media (max-width: 720px) {
+  .ingredient-row,
+  .ingredient-row.veggie-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-alt);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-4);
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.modal {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  width: min(640px, 100%);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Modals whose content can grow very tall (e.g. many ingredient rows) stay
+   bounded to the viewport; only the middle section scrolls so the header and
+   action buttons remain visible at all times. */
+.modal-scrollable {
+  max-height: calc(100vh - var(--space-5) * 2);
+  overflow: hidden;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+}
+
+.modal-scroll-area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+  padding-right: 4px;
+  min-height: 0;
+}
+
+.modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-3);
+  flex-shrink: 0;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
