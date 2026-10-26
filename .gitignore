@@ -7,6 +7,12 @@ backend/target/
 !**/src/main/**
 !**/src/test/**
 
+# Production secrets and database backups
+.env.production
+*.dump
+backups/
+
+
 # Frontend (Node)
 frontend/node_modules/
 frontend/dist/
