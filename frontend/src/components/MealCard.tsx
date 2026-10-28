@@ -43,22 +43,6 @@ export function MealCard({
         </div>
       </div>
 
-      <div className="meal-items">
-        {meal.items.map((item) => (
-          <div className="meal-item-row" key={item.id}>
-            <span className={item.itemType === 'VEGGIE' ? 'veggie' : undefined}>
-              {item.itemType === 'VEGGIE' ? '🥦 ' : ''}
-              {item.name} — {round(item.grams)}g
-            </span>
-            {item.itemType === 'INGREDIENT' && (
-              <span>
-                P {round(item.proteinG)} / C {round(item.carbsG)} / F {round(item.fatG)}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-
       <div className="meal-footer">
         <span>{round(meal.macroTotals.calories)} kcal</span>
         <span>

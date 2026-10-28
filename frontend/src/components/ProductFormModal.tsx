@@ -104,7 +104,7 @@ export function ProductFormModal({ initialProduct, onClose, onSubmit }: ProductF
 
           <div className="modal-footer">
             {error && <span className="error-banner">{error}</span>}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <div className="modal-actions">
               <button type="button" className="btn btn-secondary" onClick={onClose}>
                 Cancel
               </button>

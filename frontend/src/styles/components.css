@@ -110,6 +110,20 @@
   gap: var(--space-3);
 }
 
+.day-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.day-actions .btn {
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+
 .meal-card {
   display: flex;
   flex-direction: column;
@@ -163,23 +177,95 @@
   color: var(--text-secondary);
 }
 
-/* Ingredient builder rows in Add Meal form */
+/* Ingredient builder rows in Add Meal form: each row is a self-contained
+   tile so it reads well on narrow/mobile screens. */
 .ingredient-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-alt);
+}
+
+.ingredient-row-main {
   display: grid;
-  grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr 0.8fr auto;
+  grid-template-columns: 1.6fr 0.9fr auto;
   gap: var(--space-2);
   align-items: end;
 }
 
-.ingredient-row.veggie-row {
-  grid-template-columns: 1.6fr 0.8fr auto;
+@media (max-width: 560px) {
+  .ingredient-row-main {
+    grid-template-columns: 1fr auto;
+  }
+
+  .ingredient-row-main .form-row:first-child {
+    grid-column: 1 / -1;
+  }
 }
 
-@media (max-width: 720px) {
-  .ingredient-row,
-  .ingredient-row.veggie-row {
+/* Collapsed macro readout: grayed-out summary tile, tap to edit. */
+.macro-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.macro-summary:hover,
+.macro-summary:focus-visible {
+  border-color: var(--accent);
+  color: var(--text-secondary);
+}
+
+.macro-summary-value {
+  display: inline-flex;
+  align-items: center;
+}
+
+.macro-summary-hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Expanded macro edit fields. */
+.macro-edit {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  align-items: end;
+}
+
+@media (max-width: 560px) {
+  .macro-edit {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+.macro-toggle {
+  grid-column: 1 / -1;
+  justify-self: start;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: var(--space-1) 0 0;
 }
 
 .chip-group {
@@ -214,6 +300,7 @@
   justify-content: center;
   padding: var(--space-4);
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 50;
 }
 
@@ -222,25 +309,50 @@
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   width: min(640px, 100%);
+  max-width: 100%;
+  min-width: 0;
+  max-height: calc(100vh - 48px);
   margin-top: var(--space-5);
   margin-bottom: var(--space-5);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal-compact {
+  width: min(440px, 100%);
+}
+
+.modal-small {
+  width: min(360px, 100%);
 }
 
 .modal-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.modal-head h2,
+.modal-head h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.modal-head .btn-icon {
+  flex: 0 0 auto;
 }
 
 /* Modals whose content can grow very tall (e.g. many ingredient rows) stay
    bounded to the viewport; only the middle section scrolls so the header and
    action buttons remain visible at all times. */
 .modal-scrollable {
-  max-height: calc(100vh - var(--space-5) * 2);
+  max-height: calc(100vh - 48px);
   overflow: hidden;
 }
 
@@ -250,6 +362,8 @@
   gap: var(--space-4);
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
 }
 
 .modal-scroll-area {
@@ -257,6 +371,7 @@
   flex-direction: column;
   gap: var(--space-4);
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 4px;
   min-height: 0;
 }
@@ -268,6 +383,60 @@
   border-top: 1px solid var(--border-color);
   padding-top: var(--space-3);
   flex-shrink: 0;
+}
+
+.modal-actions,
+.modal-item-actions,
+.goal-preset-save {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.modal-actions {
+  justify-content: flex-end;
+}
+
+.modal-item-actions {
+  margin-top: 10px;
+}
+
+.goal-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.goal-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.goal-preset {
+  display: inline-flex;
+  gap: 2px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.goal-preset > .btn:not(.btn-icon) {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.goal-preset-save input {
+  flex: 1 1 auto;
+}
+
+.autocomplete-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .chart-card {
@@ -287,4 +456,90 @@
 
 .stat-row:last-child {
   border-bottom: none;
+}
+
+/* Shared week switcher used by the calendar and weekly summary. */
+.week-navigation {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.week-navigation-range {
+  min-width: 0;
+  text-align: center;
+}
+
+.summary-grid > .card {
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .modal-overlay {
+    padding: var(--space-2);
+  }
+
+  .modal {
+    width: 100%;
+    max-height: calc(100vh - var(--space-4));
+    max-height: calc(100dvh - var(--space-4));
+    margin: 0;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    gap: var(--space-3);
+  }
+
+  .modal-form,
+  .modal-scroll-area {
+    gap: var(--space-3);
+  }
+
+  .modal .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modal-actions,
+  .modal-item-actions,
+  .goal-preset-save,
+  .autocomplete-create-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn,
+  .modal-item-actions .btn,
+  .goal-preset-save .btn,
+  .autocomplete-create-actions .btn {
+    width: 100%;
+  }
+
+  .week-navigation {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .week-navigation-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 1.1rem;
+  }
+
+  .week-navigation-label,
+  .week-navigation-prefix {
+    display: none;
+  }
+
+  .week-navigation-range {
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .summary-grid > .card {
+    width: 100%;
+    max-width: 440px;
+    justify-self: center;
+  }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { savedMealsApi } from '../api/endpoints';
+import { useAnchoredRect } from '../hooks/useAnchoredRect';
 import type { SavedMealDto } from '../types/api';
 
 interface SavedMealAutocompleteProps {
@@ -9,12 +10,6 @@ interface SavedMealAutocompleteProps {
   autoFocus?: boolean;
   onNameChange: (name: string) => void;
   onSelectMeal: (meal: SavedMealDto) => void;
-}
-
-interface Rect {
-  top: number;
-  left: number;
-  width: number;
 }
 
 function round(value: number): number {
@@ -31,28 +26,10 @@ export function SavedMealAutocomplete({
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<SavedMealDto[]>([]);
   const [loading, setLoading] = useState(false);
-  const [rect, setRect] = useState<Rect | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  function recomputeRect() {
-    const input = inputRef.current;
-    if (!input) return;
-    const r = input.getBoundingClientRect();
-    setRect({ top: r.bottom + 4, left: r.left, width: r.width });
-  }
-
-  useEffect(() => {
-    if (!open) return;
-    recomputeRect();
-    window.addEventListener('resize', recomputeRect);
-    window.addEventListener('scroll', recomputeRect, true);
-    return () => {
-      window.removeEventListener('resize', recomputeRect);
-      window.removeEventListener('scroll', recomputeRect, true);
-    };
-  }, [open]);
+  const rect = useAnchoredRect(inputRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -109,11 +86,12 @@ export function SavedMealAutocomplete({
               top: rect.top,
               left: rect.left,
               width: rect.width,
-              minWidth: 280,
+              maxWidth: 'calc(100vw - 16px)',
               zIndex: 200,
               padding: 6,
-              maxHeight: '50vh',
+              maxHeight: rect.maxHeight,
               overflowY: 'auto',
+              overflowX: 'hidden',
             }}
           >
             {loading && <div style={muted}>Searching…</div>}
@@ -142,8 +120,8 @@ export function SavedMealAutocomplete({
                     fontSize: '0.88rem',
                   }}
                 >
-                  <span>{m.name}</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                  <span style={{ overflowWrap: 'anywhere' }}>{m.name}</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', overflowWrap: 'anywhere' }}>
                     {round(m.macroTotals.calories)} kcal · P {round(m.macroTotals.proteinG)}g · C{' '}
                     {round(m.macroTotals.carbsG)}g · F {round(m.macroTotals.fatG)}g
                     {m.veggiesG > 0 ? ` · 🥦 ${round(m.veggiesG)}g` : ''}

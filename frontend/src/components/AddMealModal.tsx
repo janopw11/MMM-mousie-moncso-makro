@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { MEAL_TYPE_LABELS, MEAL_TYPE_ORDER } from '../utils/constants';
+import { MACRO_COLORS, MEAL_TYPE_LABELS, MEAL_TYPE_ORDER } from '../utils/constants';
 import { ProductAutocomplete } from './ProductAutocomplete';
 import { SavedMealAutocomplete } from './SavedMealAutocomplete';
 import type { CreateMealRequest, MealDto, MealItemRequest, MealItemType, MealType, ProductDto, SavedMealDto } from '../types/api';
+
+function round(value: number): number {
+  return Math.round(value * 10) / 10;
+}
 
 interface DraftItem {
   key: string;
@@ -66,6 +70,20 @@ export function AddMealModal({ date, initialMeal, savedMode, onClose, onSubmit }
   );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Macro breakdown per ingredient starts collapsed; tapping the tile reveals the editable fields.
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(key: string) {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
 
   function updateItem(key: string, patch: Partial<DraftItem>) {
     setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
@@ -213,91 +231,126 @@ export function AddMealModal({ date, initialMeal, savedMode, onClose, onSubmit }
             <div className="form-row">
               <label>Ingredients &amp; vegetables</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {items.map((item) => (
-                  <div
-                    key={item.key}
-                    className={item.itemType === 'VEGGIE' ? 'ingredient-row veggie-row' : 'ingredient-row'}
-                  >
-                    <div className="form-row">
-                      <label>{item.itemType === 'VEGGIE' ? 'Vegetable' : 'Ingredient'}</label>
-                      {item.itemType === 'INGREDIENT' ? (
-                        <ProductAutocomplete
-                          value={item.name}
-                          placeholder="e.g. Rolled oats"
-                          onNameChange={(value) => updateItemName(item.key, value)}
-                          onSelectProduct={(product) => selectProductForItem(item.key, product)}
-                        />
-                      ) : (
-                        <input
-                          value={item.name}
-                          onChange={(e) => updateItem(item.key, { name: e.target.value })}
-                          placeholder="e.g. Carrot"
-                        />
-                      )}
-                    </div>
-                    <div className="form-row">
-                      <label>Grams</label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={item.grams}
-                        onChange={(e) => updateGrams(item.key, e.target.value)}
-                        placeholder="85"
-                      />
-                    </div>
-                    {item.itemType === 'INGREDIENT' && (
-                      <>
-                        <div className="form-row">
-                          <label>Protein (g)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={item.proteinG}
-                            onChange={(e) => updateItem(item.key, { proteinG: e.target.value })}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="form-row">
-                          <label>Carbs (g)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={item.carbsG}
-                            onChange={(e) => updateItem(item.key, { carbsG: e.target.value })}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div className="form-row">
-                          <label>Fat (g)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={item.fatG}
-                            onChange={(e) => updateItem(item.key, { fatG: e.target.value })}
-                            placeholder="0"
-                          />
-                        </div>
-                      </>
-                    )}
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-icon"
-                      onClick={() => removeItem(item.key)}
-                      disabled={items.length === 1}
-                      aria-label="Remove row"
-                      title="Remove row"
+                {items.map((item) => {
+                  const isExpanded = expandedKeys.has(item.key);
+                  return (
+                    <div
+                      key={item.key}
+                      className={item.itemType === 'VEGGIE' ? 'ingredient-row veggie-row' : 'ingredient-row'}
                     >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                      <div className="ingredient-row-main">
+                        <div className="form-row">
+                          <label>{item.itemType === 'VEGGIE' ? 'Vegetable' : 'Ingredient'}</label>
+                          {item.itemType === 'INGREDIENT' ? (
+                            <ProductAutocomplete
+                              value={item.name}
+                              placeholder="e.g. Rolled oats"
+                              onNameChange={(value) => updateItemName(item.key, value)}
+                              onSelectProduct={(product) => selectProductForItem(item.key, product)}
+                            />
+                          ) : (
+                            <input
+                              value={item.name}
+                              onChange={(e) => updateItem(item.key, { name: e.target.value })}
+                              placeholder="e.g. Carrot"
+                            />
+                          )}
+                        </div>
+                        <div className="form-row">
+                          <label>Grams</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.grams}
+                            onChange={(e) => updateGrams(item.key, e.target.value)}
+                            placeholder="85"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-icon"
+                          onClick={() => removeItem(item.key)}
+                          disabled={items.length === 1}
+                          aria-label="Remove row"
+                          title="Remove row"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {item.itemType === 'INGREDIENT' &&
+                        (isExpanded ? (
+                          <div className="macro-edit">
+                            <div className="form-row">
+                              <label>Protein (g)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={item.proteinG}
+                                onChange={(e) => updateItem(item.key, { proteinG: e.target.value })}
+                                placeholder="0"
+                              />
+                            </div>
+                            <div className="form-row">
+                              <label>Carbs (g)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={item.carbsG}
+                                onChange={(e) => updateItem(item.key, { carbsG: e.target.value })}
+                                placeholder="0"
+                              />
+                            </div>
+                            <div className="form-row">
+                              <label>Fat (g)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={item.fatG}
+                                onChange={(e) => updateItem(item.key, { fatG: e.target.value })}
+                                placeholder="0"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="macro-toggle"
+                              onClick={() => toggleExpanded(item.key)}
+                            >
+                              Collapse macros ▲
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="macro-summary"
+                            onClick={() => toggleExpanded(item.key)}
+                            aria-label={`Edit macros for ${item.name || 'ingredient'}`}
+                          >
+                            <span className="macro-summary-value">
+                              <span className="macro-dot" style={{ background: MACRO_COLORS.protein }} />P{' '}
+                              {round(Number(item.proteinG) || 0)}g
+                            </span>
+                            <span className="macro-summary-value">
+                              <span className="macro-dot" style={{ background: MACRO_COLORS.carbs }} />C{' '}
+                              {round(Number(item.carbsG) || 0)}g
+                            </span>
+                            <span className="macro-summary-value">
+                              <span className="macro-dot" style={{ background: MACRO_COLORS.fat }} />F{' '}
+                              {round(Number(item.fatG) || 0)}g
+                            </span>
+                            <span className="macro-summary-hint">Edit ✎</span>
+                          </button>
+                        ))}
+                    </div>
+                  );
+                })}
               </div>
 
-              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+              <div className="modal-item-actions">
                 <button type="button" className="btn btn-secondary" onClick={addIngredient}>
                   + Add ingredient
                 </button>
@@ -310,7 +363,7 @@ export function AddMealModal({ date, initialMeal, savedMode, onClose, onSubmit }
 
           <div className="modal-footer">
             {error && <span className="error-banner">{error}</span>}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <div className="modal-actions">
               <button type="button" className="btn btn-secondary" onClick={onClose}>
                 Cancel
               </button>

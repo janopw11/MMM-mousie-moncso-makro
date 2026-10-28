@@ -49,10 +49,15 @@ export function UserSwitcher() {
 
       {showAddForm && (
         <div className="modal-overlay" onClick={() => setShowAddForm(false)}>
-          <div className="modal" style={{ width: 'min(360px, 100%)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal modal-small" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
               <h3>Add new user</h3>
-              <button type="button" className="btn btn-secondary btn-icon" onClick={() => setShowAddForm(false)}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-icon"
+                onClick={() => setShowAddForm(false)}
+                aria-label="Close"
+              >
                 ✕
               </button>
             </div>

@@ -32,6 +32,10 @@ export function formatDayOfMonth(date: Date): string {
   return format(date, 'd MMM');
 }
 
+export function formatWeekRange(weekStartKey: string, weekEndKey: string): string {
+  return `${formatDayOfMonth(parseDateKey(weekStartKey))} – ${formatDayOfMonth(parseDateKey(weekEndKey))}`;
+}
+
 export function isSameDateKey(a: string, b: string): boolean {
   return a === b;
 }

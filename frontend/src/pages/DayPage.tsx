@@ -45,13 +45,25 @@ export function DayPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="btn btn-secondary" onClick={() => goToDay(-1)}>
-          ← Prev day
+      <div className="card week-navigation">
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Previous day"
+          title="Previous day"
+          onClick={() => goToDay(-1)}
+        >
+          <span aria-hidden="true">←</span>
+          <span className="week-navigation-label">Prev day</span>
         </button>
-        <h2>{formatDayOfMonth(new Date(dateKey))}</h2>
-        <button className="btn btn-secondary" onClick={() => goToDay(1)}>
-          Next day →
+        <h2 className="week-navigation-range">{formatDayOfMonth(new Date(dateKey))}</h2>
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Next day"
+          title="Next day"
+          onClick={() => goToDay(1)}
+        >
+          <span className="week-navigation-label">Next day</span>
+          <span aria-hidden="true">→</span>
         </button>
       </div>
 
@@ -63,7 +75,7 @@ export function DayPage() {
         <>
           <MacroSummary summary={summary} />
 
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div className="day-actions">
             <button className="btn btn-primary" onClick={() => setShowAddMeal(true)}>
               + Add meal
             </button>

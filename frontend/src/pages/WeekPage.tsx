@@ -1,11 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from '../context/UserContext';
 import { useWeekSummary } from '../hooks/useWeekSummary';
 import { GoalEditor } from '../components/GoalEditor';
 import { ProgressBar } from '../components/ProgressBar';
 import { goalsApi } from '../api/endpoints';
-import { formatDayLabel, formatDayOfMonth, getWeekStart, shiftWeek, toDateKey } from '../utils/date';
+import {
+  formatDayLabel,
+  formatDayOfMonth,
+  formatWeekRange,
+  getWeekStart,
+  shiftWeek,
+  toDateKey,
+} from '../utils/date';
 import type { DaySummaryDto } from '../types/api';
 
 function round(value: number): number {
@@ -21,10 +28,7 @@ export function WeekPage() {
 
   const todayKey = toDateKey(new Date());
 
-  const weekRangeLabel = useMemo(() => {
-    if (!summary) return '';
-    return `${formatDayOfMonth(new Date(summary.weekStart))} – ${formatDayOfMonth(new Date(summary.weekEnd))}`;
-  }, [summary]);
+  const weekRangeLabel = summary ? formatWeekRange(summary.weekStart, summary.weekEnd) : '';
 
   if (!activeUser) {
     return <div className="empty-state">Add a user to get started.</div>;
@@ -32,13 +36,25 @@ export function WeekPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="btn btn-secondary" onClick={() => setWeekStart((w) => shiftWeek(w, -1))}>
-          ← Prev week
+      <div className="card week-navigation">
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Previous week"
+          title="Previous week"
+          onClick={() => setWeekStart((w) => shiftWeek(w, -1))}
+        >
+          <span aria-hidden="true">←</span>
+          <span className="week-navigation-label">Prev week</span>
         </button>
-        <h2>{weekRangeLabel || 'Loading…'}</h2>
-        <button className="btn btn-secondary" onClick={() => setWeekStart((w) => shiftWeek(w, 1))}>
-          Next week →
+        <h2 className="week-navigation-range">{weekRangeLabel || 'Loading…'}</h2>
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Next week"
+          title="Next week"
+          onClick={() => setWeekStart((w) => shiftWeek(w, 1))}
+        >
+          <span className="week-navigation-label">Next week</span>
+          <span aria-hidden="true">→</span>
         </button>
       </div>
 

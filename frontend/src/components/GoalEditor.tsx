@@ -87,7 +87,7 @@ export function GoalEditor({ date, userId, initialGoal, onClose, onSubmit }: Goa
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ width: 'min(440px, 100%)' }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal modal-compact" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h2>Daily goal · {date}</h2>
           <button type="button" className="btn btn-secondary btn-icon" onClick={onClose} aria-label="Close">
@@ -98,9 +98,9 @@ export function GoalEditor({ date, userId, initialGoal, onClose, onSubmit }: Goa
         {presets.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Apply a saved day type</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <div className="goal-presets">
               {presets.map((p) => (
-                <span key={p.id} style={{ display: 'inline-flex', gap: 2 }}>
+                <span key={p.id} className="goal-preset">
                   <button
                     type="button"
                     className="btn btn-secondary"
@@ -123,7 +123,7 @@ export function GoalEditor({ date, userId, initialGoal, onClose, onSubmit }: Goa
             </div>
           </div>
         )}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form onSubmit={handleSubmit} className="goal-editor-form">
           <div className="form-grid">
             <div className="form-row">
               <label htmlFor="goal-protein">Protein (g)</label>
@@ -177,21 +177,20 @@ export function GoalEditor({ date, userId, initialGoal, onClose, onSubmit }: Goa
 
           {error && <span className="error-banner">{error}</span>}
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="goal-preset-save">
             <input
               type="text"
               placeholder="Save these values as… (e.g. High day)"
               maxLength={64}
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
-              style={{ flex: 1 }}
             />
             <button type="button" className="btn btn-secondary" onClick={savePreset}>
               Save as preset
             </button>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <div className="modal-actions">
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>

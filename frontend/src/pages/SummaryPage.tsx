@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 import { useUsers } from '../context/UserContext';
 import { useWeekSummary } from '../hooks/useWeekSummary';
-import { formatDayLabel, getWeekStart, shiftWeek, toDateKey } from '../utils/date';
+import { formatDayLabel, formatWeekRange, getWeekStart, shiftWeek, toDateKey } from '../utils/date';
 import { MACRO_COLORS_HEX } from '../utils/constants';
 
 function round(value: number): number {
@@ -70,22 +70,36 @@ export function SummaryPage() {
   ].filter((entry) => entry.value > 0);
 
   const remainingCalories = summary.weekGoalTotal.calories - summary.weekConsumedTotal.calories;
+  const weekRangeLabel = formatWeekRange(summary.weekStart, summary.weekEnd);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="btn btn-secondary" onClick={() => setWeekStart((w) => shiftWeek(w, -1))}>
-          ← Prev week
+      <div className="card week-navigation">
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Previous week"
+          title="Previous week"
+          onClick={() => setWeekStart((w) => shiftWeek(w, -1))}
+        >
+          <span aria-hidden="true">←</span>
+          <span className="week-navigation-label">Prev week</span>
         </button>
-        <h2>
-          Week of {summary.weekStart} – {summary.weekEnd}
+        <h2 className="week-navigation-range">
+          <span className="week-navigation-prefix">Week of </span>
+          {weekRangeLabel}
         </h2>
-        <button className="btn btn-secondary" onClick={() => setWeekStart((w) => shiftWeek(w, 1))}>
-          Next week →
+        <button
+          className="btn btn-secondary week-navigation-button"
+          aria-label="Next week"
+          title="Next week"
+          onClick={() => setWeekStart((w) => shiftWeek(w, 1))}
+        >
+          <span className="week-navigation-label">Next week</span>
+          <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div className="grid grid-4">
+      <div className="grid grid-4 summary-grid">
         <div className="card">
           <div className="stat-row">
             <span>Consumed</span>
@@ -116,7 +130,7 @@ export function SummaryPage() {
         </div>
       </div>
 
-      <div className="grid grid-2">
+      <div className="grid grid-2 summary-grid">
         <div className="card chart-card">
           <h3>Calories: consumed vs goal</h3>
           <ResponsiveContainer width="100%" height={260}>
